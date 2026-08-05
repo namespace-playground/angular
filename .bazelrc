@@ -18,6 +18,9 @@ common --incompatible_merge_fixed_and_default_shell_env
 # Frozen lockfile
 common --lockfile_mode=error
 
+# Keep analysis resource usage predictable on shared development machines.
+common --loading_phase_threads=1
+
 ###############################
 # Filesystem interactions     #
 ###############################
