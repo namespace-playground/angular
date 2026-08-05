@@ -1,6 +1,62 @@
 load("@bazel_lib//lib:write_source_files.bzl", "write_source_file")
 load("//tools:defaults.bzl", "js_binary", "js_run_binary")
 
+_CompatibilityTestInfo = provider(
+    fields = [
+        "compilation_mode",
+        "linker_mode",
+        "module_format",
+        "typescript_version",
+    ],
+)
+
+def _compatibility_case_impl(ctx):
+    return [
+        DefaultInfo(files = depset([ctx.file.src])),
+        _CompatibilityTestInfo(
+            compilation_mode = ctx.attr.compilation_mode,
+            linker_mode = ctx.attr.linker_mode,
+            module_format = ctx.attr.module_format,
+            typescript_version = ctx.attr.typescript_version,
+        ),
+    ]
+
+_compatibility_case = rule(
+    implementation = _compatibility_case_impl,
+    attrs = {
+        "compilation_mode": attr.string(mandatory = True),
+        "linker_mode": attr.string(mandatory = True),
+        "module_format": attr.string(mandatory = True),
+        "src": attr.label(allow_single_file = True, mandatory = True),
+        "typescript_version": attr.string(mandatory = True),
+    },
+)
+
+def compatibility_test_matrix(name, srcs, typescript_versions, module_formats, compilation_modes, linker_modes):
+    targets = []
+
+    for typescript in typescript_versions:
+        for module in module_formats:
+            for mode in compilation_modes:
+                for linker in linker_modes:
+                    for src in srcs:
+                        target = "compatibility/%s/%s/%s/%s/%s" % (typescript, module, mode, linker, src)
+                        _compatibility_case(
+                            name = target,
+                            src = src,
+                            typescript_version = typescript,
+                            module_format = module,
+                            compilation_mode = mode,
+                            linker_mode = linker,
+                            tags = ["manual"],
+                        )
+                        targets.append(target)
+
+    native.filegroup(
+        name = name,
+        srcs = targets,
+    )
+
 def partial_compliance_golden(filePath):
     """Creates the generate and testing targets for partial compile results.
     """
