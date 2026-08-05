@@ -49,6 +49,10 @@ def ng_package(readme_md = None, license_banner = None, license = None, deps = [
     stamped_substitutions = dict(common_substitutions, **{
         "0.0.0-PLACEHOLDER": "{{STABLE_PROJECT_VERSION}}",
     })
+    stamp = select({
+        "//:stamp": True,
+        "//conditions:default": False,
+    })
 
     rollup_runtime_deps = [
         "//:node_modules/@babel/core",
@@ -70,6 +74,7 @@ def ng_package(readme_md = None, license_banner = None, license = None, deps = [
             "//:stamp": stamped_substitutions,
             "//conditions:default": substitutions,
         }),
+        stamp = stamp,
         visibility = visibility,
         tags = tags,
         **kwargs
@@ -121,6 +126,10 @@ def npm_package(srcs = [], **kwargs):
         substitutions = select({
             "//:stamp": stamped_substitutions,
             "//conditions:default": substitutions,
+        }),
+        stamp = select({
+            "//:stamp": True,
+            "//conditions:default": False,
         }),
     )
     _npm_package(

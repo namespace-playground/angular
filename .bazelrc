@@ -100,6 +100,14 @@ test --test_output=errors
 #  --config=remote               #
 ##################################
 
+# Namespace's generated Bazel configuration selects the remote endpoints but conservatively
+# limits concurrency based on the local machine size. Large, cache-heavy builds benefit from
+# allowing more remote cache lookups to run concurrently. The execution-info override removes the
+# no-remote-exec requirement after the patched rules_angular worker recognizes Namespace sandboxes.
+common:namespace-rbe --jobs=128
+build:namespace-rbe --remote_download_outputs=minimal
+build:namespace-rbe --modify_execution_info=JsRunBinary=-no-remote-exec
+
 # The following --define=EXECUTOR=remote will be able to be removed
 # once https://github.com/bazelbuild/bazel/issues/7254 is fixed
 build:remote --define=EXECUTOR=remote
