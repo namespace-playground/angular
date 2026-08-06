@@ -19,8 +19,6 @@ bazel_dep(name = "rules_angular")
 git_override(
     module_name = "rules_angular",
     commit = "a0bbcceea19b7888114eeafe3f52f9822ca2b34a",
-    patch_strip = 1,
-    patches = ["//tools/bazel:rules_angular_text_replace_stamp.patch"],
     remote = "https://github.com/angular/rules_angular.git",
 )
 
